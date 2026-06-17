@@ -25,7 +25,10 @@ function PriorityNotifications() {
 
       const allNotifications = response.data.notifications || response.data || [];
       const priorityOnly = Array.isArray(allNotifications)
-        ? allNotifications.filter((n) => n.priority?.toLowerCase() === "high")
+        ? allNotifications.filter((n) => {
+            const priority = n.priority || n.Priority || "";
+            return priority.toLowerCase() === "high";
+          })
         : [];
 
       setNotifications(priorityOnly);
@@ -65,11 +68,7 @@ function PriorityNotifications() {
             {notifications.map((item, index) => (
               <NotificationCard
                 key={index}
-                title={item.title}
-                message={item.message}
-                priority={item.priority}
-                timestamp={item.timestamp}
-                category={item.category}
+                notification={item}
               />
             ))}
           </div>

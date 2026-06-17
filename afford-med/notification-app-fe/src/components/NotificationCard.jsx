@@ -1,6 +1,29 @@
 import "../styles/NotificationCard.css";
 
-function NotificationCard({ title, message, priority = "low", timestamp, category }) {
+function NotificationCard({ notification }) {
+  // Handle flexible field names - try multiple possible names
+  let title = notification?.title || notification?.subject || notification?.Title || notification?.Subject || "";
+  let message = notification?.message || notification?.body || notification?.content || notification?.Message || notification?.Body || notification?.Content || "";
+  
+  const priority = notification?.priority || notification?.Priority || "low";
+  const timestamp = notification?.timestamp || notification?.createdAt || notification?.Timestamp || notification?.CreatedAt || new Date().toISOString();
+  const category = notification?.category || notification?.Category || "";
+
+  // If title is empty but message exists, use message as title and leave message empty
+  // This handles APIs that only send message/body
+  if (!title && message) {
+    title = message;
+    message = "";
+  }
+
+  // If still no title, use "Notification"
+  if (!title) {
+    title = "Notification";
+  }
+
+  // Log for debugging
+  console.log("📌 NotificationCard Data:", { title, message, priority, timestamp, fullData: notification });
+
   const getPriorityEmoji = (priority) => {
     switch (priority?.toLowerCase()) {
       case "high":
@@ -15,9 +38,11 @@ function NotificationCard({ title, message, priority = "low", timestamp, categor
   };
 
   const formatTimestamp = (ts) => {
-    if (!ts) return "";
+    if (!ts) return "Just now";
     try {
-      return new Date(ts).toLocaleDateString("en-US", {
+      const date = new Date(ts);
+      if (isNaN(date.getTime())) return ts;
+      return date.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -40,11 +65,11 @@ function NotificationCard({ title, message, priority = "low", timestamp, categor
         </span>
       </div>
 
-      <p className="card-message">{message}</p>
+      {message && <p className="card-message">{message}</p>}
 
       <div className="card-footer">
         <span className="card-timestamp">
-          📅 {formatTimestamp(timestamp) || "Just now"}
+          📅 {formatTimestamp(timestamp)}
         </span>
         {category && <span className="card-category">{category}</span>}
       </div>

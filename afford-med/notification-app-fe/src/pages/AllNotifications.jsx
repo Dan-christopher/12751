@@ -29,6 +29,12 @@ function AllNotifications() {
       const response = await api.get("/notifications");
 
       console.log("✅ API Response received:", response.data);
+      
+      // Log the first notification to inspect field names
+      if (response.data && response.data.length > 0) {
+        console.log("📋 First notification structure:", response.data[0]);
+        console.log("📋 All available field names:", Object.keys(response.data[0]));
+      }
 
       const notificationsData = response.data.notifications || response.data || [];
       setNotifications(Array.isArray(notificationsData) ? notificationsData : []);
@@ -85,11 +91,7 @@ function AllNotifications() {
             {filteredNotifications.map((item, index) => (
               <NotificationCard
                 key={index}
-                title={item.title}
-                message={item.message}
-                priority={item.priority}
-                timestamp={item.timestamp}
-                category={item.category}
+                notification={item}
               />
             ))}
           </div>
